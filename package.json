@@ -1,0 +1,19 @@
+{
+  "name": "puhelinluottelobackend",
+  "version": "0.0.1",
+  "description": "\"Backend Puhelinluottelo appia varten\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EvulSmoothie/palautusrepo_backend.git"
+  },
+  "author": "Aatu Piiroinen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EvulSmoothie/palautusrepo_backend/issues"
+  },
+  "homepage": "https://github.com/EvulSmoothie/palautusrepo_backend#readme"
+}
