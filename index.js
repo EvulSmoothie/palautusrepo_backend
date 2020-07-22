@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 var morgan = require('morgan')
 app.use(express.json()) 
+const cors = require('cors')
+app.use(cors())
 
 let   persons = [
     {
