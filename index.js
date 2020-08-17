@@ -70,7 +70,7 @@ app.delete('/api/persons/:id', (request, response) => {
         error: 'name missing' 
       })
     }
-    //Varmistetaan että henkilöllä on numore
+    //Varmistetaan että henkilöllä on numero
     if (!body.number) {
         return response.status(400).json({ 
           error: 'number missing' 
