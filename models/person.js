@@ -1,5 +1,10 @@
 //Moduuli mongoose spesifiselle koodille
 const mongoose = require('mongoose')
+mongoose.set('useNewUrlParser', true)
+mongoose.set('useFindAndModify', false)
+mongoose.set('useCreateIndex', true)
+mongoose.set('useUnifiedTopology', true)
+const uniqueValidator = require('mongoose-unique-validator')
 
 const url = process.env.MONGODB_URI
 
@@ -14,9 +19,20 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
   })
 //Luodaan skeema
   const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
+    name: {
+      type: String,
+      minlength: 3,
+      required: true,
+      unique: true
+    },
+    number: {
+      type: String,
+      minlength: 8,
+      required: true
+    },
   })
+  //Laitetaan unique validator skeemaan
+  personSchema.plugin(uniqueValidator)
 //Muokataan mongolta saadut oliot järkevään tulostus muotoon, eli poistetaan siitä mongon käyttämä ID sekä versio
 personSchema.set('toJSON', {
   transform: (document, returnedObject) => {

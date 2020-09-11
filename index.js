@@ -3,8 +3,8 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 var morgan = require('morgan')
-app.use(express.json()) 
 app.use(express.static('build'))
+app.use(express.json()) 
 const cors = require('cors')
 app.use(cors())
 const Person = require('./models/person')
@@ -47,24 +47,31 @@ let   persons = [
     })
   })
 //Yksittäisen henkilön pyyntö, haetaan henkilö IDn perusteella ja lähetetään
-  app.get('/api/persons/:id', (request, response) => {
-    Note.findById(request.params.id).then(note => {
-      response.json(note)  
+  app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id).then(note => {
+      if (note) {
+        response.json(note)
+      } else {
+        response.status(400).send({ error: 'malformatted id' })
+      }  
   })
+  .catch(error => next(error))
 })
 //Delete pyyntö, etsitään henkilö IDn perusteella ja poistetaan, vastaus aina 204
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(note => note.id !== id)
-  
-    response.status(204).end()
-  })
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
+})
 
   //Lisäys pyyntö
-  app.post('/api/persons', (request, response) => {
+  app.post('/api/persons', (request, response, next) => {
     const body = request.body
     console.log(body)
-    //Varmistetaan että henkilöllä on nimi
+    /* Varmistetaan että henkilöllä on nimi
+    Ei tarvita toistaiseksi, middleware hoitaa
     if (!body.name) {
       return response.status(400).json({ 
         error: 'name missing' 
@@ -75,17 +82,41 @@ app.delete('/api/persons/:id', (request, response) => {
         return response.status(400).json({ 
           error: 'number missing' 
         })
-      }
+      } */
     //Luodaan uusi henkilö saaduilla tiedoilla
     const person = new Person({
       name: body.name,
       number: body.number,
     })
     //Tallennetaan henkilö ja vastataan tallennetuilla tiedoilla
-    person.save().then(savedNote => {
-      response.json(savedNote)
+    person
+    .save()
+    .then(savedNote => savedNote.toJSON())
+    .then(savedAndFormattedNote => {
+      response.json(savedAndFormattedNote)
     })
+    .catch(error => {next(error)})
   })
+
+  const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+  }
+  
+  app.use(unknownEndpoint)
+
+  const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+  
+    if (error.name === 'CastError' && error.kind == 'ObjectId') {
+      return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+      return response.status(400).json({ error: error.message })
+    }
+  
+    next(error)
+  }
+
+  app.use(errorHandler)
   
   //Kuunnellaan porttia
   const PORT = process.env.PORT
