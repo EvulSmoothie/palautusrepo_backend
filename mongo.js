@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 //MongoDB testi, mahdollistaa MongoDB tietokannantulostuksen tai sinne lisäyksen konsolin komennoilla
 const mongoose = require('mongoose')
 //varmistetaan että annettiin salasana
@@ -22,23 +23,23 @@ const personSchema = new mongoose.Schema({
 const Person = mongoose.model('Person', personSchema)
 //Jos ei annettu komennossa lisättävän tietoja, tulostetaan tietokanta sen sijaan
 if(typeof nimi === 'undefined'){
-    console.log('phonebook:')
-    Person.find({}).then(result => {
-        result.forEach(person => {
-            console.log(person.name, person.number)
-        })
-        mongoose.connection.close()
+  console.log('phonebook:')
+  Person.find({}).then(result => {
+    result.forEach(person => {
+      console.log(person.name, person.number)
     })
+    mongoose.connection.close()
+  })
 }
 //Jos taas komennossa oli ihmisen tiedot, lisätään se tietokantaan
 else{
-    const person = new Person({
-        name: nimi,
-        number: numero
-      })
-      
-      person.save().then(response => {
-        console.log(`added ${nimi} number ${numero} to phonebook`)
-        mongoose.connection.close()
-      })
+  const person = new Person({
+    name: nimi,
+    number: numero
+  })
+
+  person.save().then(() => {
+    console.log(`added ${nimi} number ${numero} to phonebook`)
+    mongoose.connection.close()
+  })
 }
